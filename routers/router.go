@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"go-streaming-server/controllers"
 	"go-streaming-server/limiters"
 	"go-streaming-server/response"
 	"net/http"
@@ -11,16 +12,20 @@ import (
 type Router struct {
 	context *httprouter.Router
 	limiter *limiters.ConnectionLimiter
+	video   *controllers.VideoController
 }
 
 func NewRouter(ctx *httprouter.Router, maxconnection int) *Router {
 	return &Router{
 		context: ctx,
 		limiter: limiters.NewConnectionLimiter(maxconnection),
+		video:   controllers.NewVideoController(),
 	}
 }
 
 func (router *Router) ConfigureRouter() error {
+	router.context.GET("/api/:vid/video.flv", router.video.Streaming)
+
 	return nil
 }
 
