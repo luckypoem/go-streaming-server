@@ -1,0 +1,9 @@
+# 主机和端口
+HOST = "0.0.0.0"
+PORT = 4040
+# 最大连结数
+MAX_CONNECTION = 100
+# 视频路径
+VIDEO_DIR = "./videos/"
+# 最大上传大小(MB)
+MAX_UPLOAD_SIZE = 500
