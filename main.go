@@ -12,7 +12,7 @@ import (
 
 func main() {
 	app := httprouter.New()
-	router := routers.NewRouter(app)
+	router := routers.NewRouter(app, conf.MAX_CONNECTION)
 
 	err := router.ConfigureRouter()
 
