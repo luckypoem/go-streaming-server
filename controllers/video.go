@@ -26,7 +26,7 @@ func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Requ
 	_, err := os.Stat(videopath)
 
 	if os.IsNotExist(err) {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusNotFound, &response.ErrorResponse{
 			Code:    http.StatusNotFound,
 			Message: "404 video not found.",
 		})
@@ -36,7 +36,7 @@ func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Requ
 	video, err := os.Open(videopath)
 
 	if err != nil {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Message: "File open Error",
 		})
@@ -56,7 +56,7 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 	r.Body = http.MaxBytesReader(w, r.Body, conf.MAX_UPLOAD_SIZE*1024*1024)
 
 	if err := r.ParseMultipartForm(conf.MAX_UPLOAD_SIZE * 1024 * 1024); err != nil {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Message: "parse form error.",
 		})
@@ -66,7 +66,7 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 	file, fileheader, err := r.FormFile("video")
 
 	if err != nil {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Message: "parse form error.",
 		})
@@ -74,7 +74,7 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 	}
 
 	if fileheader.Header.Get("Content-Type") != "video/x-flv" {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusBadRequest, &response.ErrorResponse{
 			Code:    http.StatusBadRequest,
 			Message: "You can only upload `flv` files",
 		})
@@ -86,14 +86,14 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 	err = ioutil.WriteFile(videopath, videodata, 06666)
 
 	if err != nil {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Message: "Save `flv` file error.",
 		})
 		return
 	}
 
-	response.SendResponse(w, &response.Response{
+	response.SendResponse(w, http.StatusOK, &response.Response{
 		Code:    http.StatusOK,
 		Message: "Successfully uploaded the video",
 	})

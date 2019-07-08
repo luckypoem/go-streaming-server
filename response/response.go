@@ -15,8 +15,12 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func SendResponse(w http.ResponseWriter, v interface{}) {
-	data, _ := json.Marshal(v)
+func SendResponse(w http.ResponseWriter, statusCode int, v interface{}) {
+	w.WriteHeader(statusCode)
 
-	w.Write(data)
+	if v, err := json.Marshal(v); err == nil {
+		w.Write(v)
+	} else {
+		w.Write([]byte("Error."))
+	}
 }

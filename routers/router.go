@@ -32,7 +32,7 @@ func (router *Router) ConfigureRouter() error {
 
 func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !router.limiter.GetConnection() {
-		response.SendResponse(w, &response.ErrorResponse{
+		response.SendResponse(w, http.StatusTooManyRequests, &response.ErrorResponse{
 			Code:    http.StatusTooManyRequests,
 			Message: "Too many requests.",
 		})
