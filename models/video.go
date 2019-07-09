@@ -25,6 +25,16 @@ func CreateVideo(v *Video) error {
 	return nil
 }
 
+func DeleteVideo(v *Video) error {
+	err := orm.Gorm.Delete(v).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CheckVideo(fileid int) bool {
 	var videos []*Video
 

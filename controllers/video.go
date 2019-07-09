@@ -57,7 +57,7 @@ func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Requ
 	if !models.CheckToken(id, token) {
 		response.SendResponse(w, http.StatusUnauthorized, &response.ErrorResponse{
 			Code:    http.StatusUnauthorized,
-			Message: "Unautherized.",
+			Message: "Unauthorized.",
 		})
 		return
 	}
@@ -98,7 +98,7 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
-			Message: "atoi error.",
+			Message: "Parse ID Error",
 		})
 		return
 	}
@@ -183,9 +183,36 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 
 func (controller *VideoController) Delete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	videoid := p.ByName("vid")
+	token := p.ByName("token")
 	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
 
-	_, err := os.Stat(videopath)
+	id, err := strconv.Atoi(videoid)
+
+	if err != nil {
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "Parse ID Error",
+		})
+		return
+	}
+
+	if !models.CheckVideo(id) {
+		response.SendResponse(w, http.StatusNotFound, &response.ErrorResponse{
+			Code:    http.StatusNotFound,
+			Message: "404 video not found.",
+		})
+		return
+	}
+
+	if !models.CheckToken(id, token) {
+		response.SendResponse(w, http.StatusUnauthorized, &response.ErrorResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized.",
+		})
+		return
+	}
+
+	_, err = os.Stat(videopath)
 
 	if os.IsNotExist(err) {
 		response.SendResponse(w, http.StatusNotFound, &response.ErrorResponse{
@@ -201,6 +228,19 @@ func (controller *VideoController) Delete(w http.ResponseWriter, r *http.Request
 		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Message: "Remove file error.",
+		})
+		return
+	}
+
+	err = models.DeleteVideo(&models.Video{
+		FileId: id,
+		Token:  token,
+	})
+
+	if err != nil {
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "delete video error.",
 		})
 		return
 	}
