@@ -107,3 +107,33 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 		Message: "Successfully uploaded the video",
 	})
 }
+
+func (controller *VideoController) Delete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	videoid := p.ByName("vid")
+	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
+
+	_, err := os.Stat(videopath)
+
+	if os.IsNotExist(err) {
+		response.SendResponse(w, http.StatusNotFound, &response.ErrorResponse{
+			Code:    http.StatusNotFound,
+			Message: "404 video not found.",
+		})
+		return
+	}
+
+	err = os.Remove(videopath)
+
+	if err != nil {
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "Remove file error.",
+		})
+		return
+	}
+
+	response.SendResponse(w, http.StatusOK, &response.Response{
+		Code:    http.StatusOK,
+		Message: "",
+	})
+}
