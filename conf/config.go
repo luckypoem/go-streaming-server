@@ -8,6 +8,7 @@ type Config struct {
 	MaxConnection int    `toml:"MAX_CONNECTION"`
 	VideoDir      string `toml:"VIDEO_DIR"`
 	MaxUploadSize int64  `toml:"MAX_UPLOADSIZE"`
+	MySQLDSN      string `toml:"MYSQL_DSN"`
 }
 
 func LoadConfigFromFile(filepath string) (*Config, error) {

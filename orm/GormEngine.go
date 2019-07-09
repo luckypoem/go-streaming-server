@@ -19,7 +19,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	Gorm, err = gorm.Open("mysql", "")
+	Gorm, err = gorm.Open("mysql", config.MySQLDSN)
 
 	if err != nil {
 		log.Fatal(err)
