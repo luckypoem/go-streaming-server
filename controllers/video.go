@@ -62,6 +62,16 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 	videoid := p.ByName("vid")
 	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
 
+	_, err := os.Stat(videopath)
+
+	if !os.IsNotExist(err) {
+		response.SendResponse(w, http.StatusBadRequest, &response.ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: "The file key is already in the folder.",
+		})
+		return
+	}
+
 	r.Body = http.MaxBytesReader(w, r.Body, controller.config.MaxUploadSize*1024*1024)
 
 	if err := r.ParseMultipartForm(controller.config.MaxUploadSize * 1024 * 1024); err != nil {
