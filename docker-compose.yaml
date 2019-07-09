@@ -1,0 +1,11 @@
+version: "2"
+
+services:
+  go-streaming-server:
+    image: go-streaming-server
+    restart: always
+    volumes: 
+      - ./config.toml:/app/config.toml
+      - ./videos/:/videos/
+    ports:
+      - 4040:4040
