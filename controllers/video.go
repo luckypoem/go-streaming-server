@@ -134,6 +134,6 @@ func (controller *VideoController) Delete(w http.ResponseWriter, r *http.Request
 
 	response.SendResponse(w, http.StatusOK, &response.Response{
 		Code:    http.StatusOK,
-		Message: "",
+		Message: "Video was successfully deleted.",
 	})
 }
