@@ -38,6 +38,11 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
 	router.context.ServeHTTP(w, r)
 
 	defer router.limiter.FreeConnection()
