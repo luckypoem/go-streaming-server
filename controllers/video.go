@@ -3,10 +3,13 @@ package controllers
 import (
 	"fmt"
 	"go-streaming-server/conf"
+	"go-streaming-server/functions"
+	"go-streaming-server/models"
 	"go-streaming-server/response"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -30,9 +33,36 @@ func NewVideoController() *VideoController {
 
 func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	videoid := p.ByName("vid")
+	token := p.ByName("token")
 	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
 
-	_, err := os.Stat(videopath)
+	id, err := strconv.Atoi(videoid)
+
+	if err != nil {
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "Parse ID Error",
+		})
+		return
+	}
+
+	if !models.CheckVideo(id) {
+		response.SendResponse(w, http.StatusNotFound, &response.ErrorResponse{
+			Code:    http.StatusNotFound,
+			Message: "404 video not found.",
+		})
+		return
+	}
+
+	if !models.CheckToken(id, token) {
+		response.SendResponse(w, http.StatusUnauthorized, &response.ErrorResponse{
+			Code:    http.StatusUnauthorized,
+			Message: "Unautherized.",
+		})
+		return
+	}
+
+	_, err = os.Stat(videopath)
 
 	if os.IsNotExist(err) {
 		response.SendResponse(w, http.StatusNotFound, &response.ErrorResponse{
@@ -60,9 +90,28 @@ func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Requ
 
 func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	videoid := p.ByName("vid")
+	token := functions.RandomString(6)
 	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
 
-	_, err := os.Stat(videopath)
+	id, err := strconv.Atoi(videoid)
+
+	if err != nil {
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "atoi error.",
+		})
+		return
+	}
+
+	if models.CheckVideo(id) {
+		response.SendResponse(w, http.StatusBadRequest, &response.ErrorResponse{
+			Code:    http.StatusBadRequest,
+			Message: "The file key is already in the folder.",
+		})
+		return
+	}
+
+	_, err = os.Stat(videopath)
 
 	if !os.IsNotExist(err) {
 		response.SendResponse(w, http.StatusBadRequest, &response.ErrorResponse{
@@ -112,9 +161,23 @@ func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	response.SendResponse(w, http.StatusOK, &response.Response{
+	err = models.CreateVideo(&models.Video{
+		FileId: id,
+		Token:  token,
+	})
+
+	if err != nil {
+		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
+			Code:    http.StatusInternalServerError,
+			Message: "db error.",
+		})
+		return
+	}
+
+	response.SendResponse(w, http.StatusOK, &response.TokenResponse{
 		Code:    http.StatusOK,
 		Message: "Successfully uploaded the video",
+		Token:   token,
 	})
 }
 

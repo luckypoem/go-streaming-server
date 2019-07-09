@@ -24,9 +24,9 @@ func NewRouter(ctx *httprouter.Router, maxconnection int) *Router {
 }
 
 func (router *Router) ConfigureRouter() error {
-	router.context.GET("/video/:vid", router.video.Streaming)
-	router.context.POST("/video/:vid", router.video.Upload)
-	router.context.DELETE("/video/:vid", router.video.Delete)
+	router.context.GET("/video/:vid/:token/media.flv", router.video.Streaming)
+	router.context.POST("/video/:vid/media.flv", router.video.Upload)
+	router.context.DELETE("/video/:vid/:token/media.flv", router.video.Delete)
 
 	return nil
 }

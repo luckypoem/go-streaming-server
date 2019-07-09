@@ -10,6 +10,12 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+type TokenResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
 type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
