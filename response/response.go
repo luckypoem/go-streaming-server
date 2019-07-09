@@ -16,6 +16,7 @@ type ErrorResponse struct {
 }
 
 func SendResponse(w http.ResponseWriter, statusCode int, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
 	if v, err := json.Marshal(v); err == nil {
