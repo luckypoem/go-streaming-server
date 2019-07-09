@@ -12,20 +12,26 @@ import (
 
 func main() {
 	app := httprouter.New()
-	router := routers.NewRouter(app, conf.MAX_CONNECTION)
+	config, err := conf.LoadConfigFromFile("./config.toml")
 
-	err := router.ConfigureRouter()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router := routers.NewRouter(app, config.MaxConnection)
+
+	err = router.ConfigureRouter()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	httpServer := http.Server{
-		Addr:    fmt.Sprintf("%s:%d", conf.HOST, conf.PORT),
+		Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Handler: router,
 	}
 
-	log.Printf("Server started on %s:%d", conf.HOST, conf.PORT)
+	log.Printf("Server started on %s:%d", config.Host, config.Port)
 	err = httpServer.ListenAndServe()
 
 	if err != nil {

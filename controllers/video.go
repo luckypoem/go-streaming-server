@@ -13,15 +13,24 @@ import (
 )
 
 type VideoController struct {
+	config *conf.Config
 }
 
 func NewVideoController() *VideoController {
-	return &VideoController{}
+	c, err := conf.LoadConfigFromFile("./config.toml")
+
+	if err != nil {
+		return nil
+	}
+
+	return &VideoController{
+		config: c,
+	}
 }
 
 func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	videoid := p.ByName("vid")
-	videopath := fmt.Sprintf("%s/%s", conf.VIDEO_DIR, videoid)
+	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
 
 	_, err := os.Stat(videopath)
 
@@ -51,11 +60,11 @@ func (controller *VideoController) Streaming(w http.ResponseWriter, r *http.Requ
 
 func (controller *VideoController) Upload(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	videoid := p.ByName("vid")
-	videopath := fmt.Sprintf("%s/%s", conf.VIDEO_DIR, videoid)
+	videopath := fmt.Sprintf("%s/%s", controller.config.VideoDir, videoid)
 
-	r.Body = http.MaxBytesReader(w, r.Body, conf.MAX_UPLOAD_SIZE*1024*1024)
+	r.Body = http.MaxBytesReader(w, r.Body, controller.config.MaxUploadSize*1024*1024)
 
-	if err := r.ParseMultipartForm(conf.MAX_UPLOAD_SIZE * 1024 * 1024); err != nil {
+	if err := r.ParseMultipartForm(controller.config.MaxUploadSize * 1024 * 1024); err != nil {
 		response.SendResponse(w, http.StatusInternalServerError, &response.ErrorResponse{
 			Code:    http.StatusInternalServerError,
 			Message: "parse form error.",
