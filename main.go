@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-streaming-server/conf"
+	_ "go-streaming-server/models"
 	"go-streaming-server/routers"
 	"log"
 	"net/http"
