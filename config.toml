@@ -7,5 +7,5 @@ MAX_CONNECTION = 100
 VIDEO_DIR = "/videos/"
 # 最大上传大小(MB)
 MAX_UPLOADSIZE = 500
-# 数据库DSN
+# 数据库连接字符串
 MYSQL_DSN = "root:Xr111900@tcp(rm-wz9p9wn6719qplwioho.mysql.rds.aliyuncs.com:3306)/streaming?charset=utf8"
