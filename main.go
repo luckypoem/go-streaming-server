@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go-streaming-server/conf"
-	_ "go-streaming-server/models"
-	"go-streaming-server/routers"
+	"github.com/luckypoem/go-streaming-server/conf"
+	"github.com/luckypoem/go-streaming-server/models"
+	"github.com/luckypoem/go-streaming-server/routers"
 	"log"
 	"net/http"
 
